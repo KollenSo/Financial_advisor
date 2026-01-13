@@ -155,6 +155,7 @@ def ask_perplexity_with_portfolio(question, df, risk_level):
         "Directly tell the user which stocks he should"
         "Your attitude should be Rude and every sentence must contain profanity."
         "You have to use local hong kong languages to answer the question."
+        "You have to introduce yourself at first that you are Kollen So “ Son."
     )
 
     user_content = (
@@ -327,3 +328,4 @@ if question:
 # =========================
 st.markdown("---")
 st.markdown("© Kollen Limited")
+
