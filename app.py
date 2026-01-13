@@ -207,6 +207,7 @@ st.caption(
 with st.sidebar:
     st.header("Settings")
     risk_level = st.selectbox("Your risk profile", ["Low", "Medium", "High"])
+    mobile_mode = st.checkbox("手機簡潔模式", value=False)
     st.write("Tip: Use US tickers like AAPL, MSFT, NVDA, SPY, QQQ, etc.")
     st.markdown("---")
     st.write("Now:", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -227,13 +228,20 @@ shares = []
 invalid_tickers = []
 
 for i in range(int(input_rows)):
-    c1, c2 = st.columns(2)
-    with c1:
+    if mobile_mode:
+        # 手機模式：單欄輸入
         raw_t = st.text_input(f"Ticker #{i+1}", key=f"ticker_{i}")
-    with c2:
         s = st.number_input(
             f"Shares #{i+1}", min_value=0.0, step=1.0, value=0.0, key=f"shares_{i}"
         )
+    else:
+        c1, c2 = st.columns(2)
+        with c1:
+            raw_t = st.text_input(f"Ticker #{i+1}", key=f"ticker_{i}")
+        with c2:
+            s = st.number_input(
+                f"Shares #{i+1}", min_value=0.0, step=1.0, value=0.0, key=f"shares_{i}"
+            )
 
     raw_t = raw_t.strip()
     if raw_t and s > 0:
@@ -269,13 +277,17 @@ if start:
         else:
             total_value = df["Value"].sum(skipna=True)
 
-            col1, col2, col3 = st.columns(3)
-            with col1:
+            if mobile_mode:
                 st.metric("Total portfolio value (USD)", f"${total_value:,.2f}")
-            with col2:
                 st.metric("Number of holdings", f"{df.shape[0]}")
-            with col3:
-                st.metric("Data source", "Yahoo Finance")
+            else:
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Total portfolio value (USD)", f"${total_value:,.2f}")
+                with col2:
+                    st.metric("Number of holdings", f"{df.shape[0]}")
+                with col3:
+                    st.metric("Data source", "Yahoo Finance")
 
             df_display = df.copy()
             df_display["Price"] = df_display["Price"].map(
@@ -309,14 +321,12 @@ st.subheader("4. Ask Perplexity (Sonar) about your portfolio")
 if "pplx_chat" not in st.session_state:
     st.session_state.pplx_chat = []
 
-# 控制是否展開全部歷史
 show_full_history = st.checkbox("顯示全部聊天記錄", value=False)
 
 history = st.session_state.pplx_chat
 if show_full_history:
     history_to_show = history
 else:
-    # 只顯示最後 4 條 (可自行改數字)
     history_to_show = history[-4:]
 
 for role, content in history_to_show:
