@@ -301,7 +301,7 @@ else:
 
 
 # =========================
-# PERPLEXITY SONAR Q&A
+# PERPLEXITY SONAR Q&A (with collapsible history)
 # =========================
 st.markdown("---")
 st.subheader("4. Ask Perplexity (Sonar) about your portfolio")
@@ -309,11 +309,21 @@ st.subheader("4. Ask Perplexity (Sonar) about your portfolio")
 if "pplx_chat" not in st.session_state:
     st.session_state.pplx_chat = []
 
-for role, content in st.session_state.pplx_chat:
+# 控制是否展開全部歷史
+show_full_history = st.checkbox("顯示全部聊天記錄", value=False)
+
+history = st.session_state.pplx_chat
+if show_full_history:
+    history_to_show = history
+else:
+    # 只顯示最後 4 條 (可自行改數字)
+    history_to_show = history[-4:]
+
+for role, content in history_to_show:
     with st.chat_message(role):
         st.markdown(content)
 
-question = st.chat_input("Ask anything about risk, diversification, sectors, etc...")
+question = st.chat_input("問任何關於風險、分散投資、行業配置等等...")
 
 if question:
     st.session_state.pplx_chat.append(("user", question))
@@ -324,7 +334,7 @@ if question:
     risk_for_ai = st.session_state.get("last_risk_level", risk_level)
 
     with st.chat_message("assistant"):
-        with st.spinner("Perplexity (Sonar) is thinking..."):
+        with st.spinner("Perplexity (Sonar) 緊諗緊..."):
             answer = ask_perplexity_with_portfolio(question, df_for_ai, risk_for_ai)
             st.markdown(answer)
 
@@ -335,4 +345,3 @@ if question:
 # =========================
 st.markdown("---")
 st.markdown("© Kollen Limited")
-
