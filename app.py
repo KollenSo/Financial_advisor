@@ -9,7 +9,14 @@ from datetime import datetime
 # =========================
 # CONFIG
 # =========================
+# Try local env var first (for your PC), then Streamlit Cloud secrets
 PPLX_API_KEY = os.environ.get("PERPLEXITY_API_KEY")
+if PPLX_API_KEY is None:
+    try:
+        PPLX_API_KEY = st.secrets["PERPLEXITY_API_KEY"]
+    except Exception:
+        PPLX_API_KEY = None
+
 PPLX_API_URL = "https://api.perplexity.ai/chat/completions"
 
 
@@ -328,4 +335,5 @@ if question:
 # =========================
 st.markdown("---")
 st.markdown("© Kollen Limited")
+
 
